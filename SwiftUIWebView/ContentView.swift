@@ -9,8 +9,84 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject var viewModel = ViewModel()
+    @State var showLoader = false
+    @State var message = ""
+    
+    // For WebView's forward and backward navigation
+    var webViewNavigationBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+            HStack {
+                Spacer()
+                Button(action: {
+                    self.viewModel.webViewNavigationPublisher.send(.backward)
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 20, weight: .regular))
+                        .imageScale(.large)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                Divider()
+                Spacer()
+                Button(action: {
+                    self.viewModel.webViewNavigationPublisher.send(.forward)
+                }) {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 20, weight: .regular))
+                        .imageScale(.large)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+            }.frame(height: 30)
+            Divider()
+        }
+    }
+    
     var body: some View {
-        Text("Hello, World!")
+        ZStack {
+            VStack(spacing: 0) {
+                /* Here I created a text field that takes string value and when send
+                 button is clicked 'viewModel.valuePublisher' sends that value to WebView
+                 then WebView sends that value to web app that you will load. In this
+                 project's local .html file can not receive it because it is static you should
+                 test with a web app then it will work because static website can not receive values
+                 at runtime where dynamic web app can */
+                
+                HStack {
+                    TextField("Write message", text: $message).textFieldStyle(RoundedBorderTextFieldStyle())
+                    Button(action: {
+                        self.viewModel.valuePublisher.send(self.message)
+                    }) {
+                        Text("Send")
+                            .padding(.trailing, 10)
+                            .padding(.leading, 10)
+                            .padding(.top, 4)
+                            .padding(.bottom, 4)
+                            .overlay (
+                                RoundedRectangle(cornerRadius: 4, style: .circular)
+                                    .stroke(Color.gray, lineWidth: 0.5)
+                            )
+                    }
+                }.padding()
+                
+                /* This is our WebView. Here if you pass .localUrl it will load LocalWebsite.html file
+                 into the WebView and if you pass .publicUrl it will load the public website depending on
+                 your url provided. See WebView implementation for more info. */
+                WebView(url: .localUrl, viewModel: viewModel).overlay (
+                    RoundedRectangle(cornerRadius: 4, style: .circular)
+                        .stroke(Color.gray, lineWidth: 0.5)
+                ).padding(.leading, 20).padding(.trailing, 20)
+                
+                webViewNavigationBar
+            }
+            
+            // A simple loader that is shown when WebView is loading any page and hides when loading is finished.
+            if showLoader {
+                Loader()
+            }
+        }
     }
 }
 
