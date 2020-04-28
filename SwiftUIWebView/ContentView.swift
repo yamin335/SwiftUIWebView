@@ -12,6 +12,7 @@ struct ContentView: View {
     @ObservedObject var viewModel = ViewModel()
     @State var showLoader = false
     @State var message = ""
+    @State var webTitle = ""
     
     // For WebView's forward and backward navigation
     var webViewNavigationBar: some View {
@@ -27,9 +28,11 @@ struct ContentView: View {
                         .imageScale(.large)
                         .foregroundColor(.gray)
                 }
-                Spacer()
-                Divider()
-                Spacer()
+                Group {
+                    Spacer()
+                    Divider()
+                    Spacer()
+                }
                 Button(action: {
                     self.viewModel.webViewNavigationPublisher.send(.forward)
                 }) {
@@ -38,8 +41,21 @@ struct ContentView: View {
                         .imageScale(.large)
                         .foregroundColor(.gray)
                 }
+                Group {
+                    Spacer()
+                    Divider()
+                    Spacer()
+                }
+                Button(action: {
+                    self.viewModel.webViewNavigationPublisher.send(.reload)
+                }) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 20, weight: .regular))
+                        .imageScale(.large)
+                        .foregroundColor(.gray).padding(.bottom, 4)
+                }
                 Spacer()
-            }.frame(height: 30)
+            }.frame(height: 45)
             Divider()
         }
     }
@@ -71,10 +87,14 @@ struct ContentView: View {
                     }
                 }.padding()
                 
+                Text(webTitle).font(.title).onReceive(self.viewModel.showWebTitle.receive(on: RunLoop.main)) { value in
+                    self.webTitle = value
+                }
+                
                 /* This is our WebView. Here if you pass .localUrl it will load LocalWebsite.html file
                  into the WebView and if you pass .publicUrl it will load the public website depending on
                  your url provided. See WebView implementation for more info. */
-                WebView(url: .localUrl, viewModel: viewModel).overlay (
+                WebView(url: .publicUrl, viewModel: viewModel).overlay (
                     RoundedRectangle(cornerRadius: 4, style: .circular)
                         .stroke(Color.gray, lineWidth: 0.5)
                 ).padding(.leading, 20).padding(.trailing, 20)

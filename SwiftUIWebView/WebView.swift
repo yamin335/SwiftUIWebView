@@ -62,8 +62,8 @@ struct WebView: UIViewRepresentable, WebViewHandlerDelegate {
                 webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
             }
         } else if url == .publicUrl {
-            // Load a public website, for example I used here youtube.com
-            if let url = URL(string: "https://www.youtube.com") {
+            // Load a public website, for example I used here google.com
+            if let url = URL(string: "https://www.google.com") {
                 webView.load(URLRequest(url: url))
             }
         }
@@ -86,6 +86,20 @@ struct WebView: UIViewRepresentable, WebViewHandlerDelegate {
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            // Get the title of loaded webcontent
+            webView.evaluateJavaScript("document.title") { (response, error) in
+                if let error = error {
+                    print("Error getting title")
+                    print(error.localizedDescription)
+                }
+                
+                guard let title = response as? String else {
+                    return
+                }
+                
+                self.parent.viewModel.showWebTitle.send(title)
+            }
+            
             /* An observer that observes 'viewModel.valuePublisher' to get value from TextField and
              pass that value to web app by calling JavaScript function */
             valueSubscriber = parent.viewModel.valuePublisher.receive(on: RunLoop.main).sink(receiveValue: { value in
@@ -135,6 +149,8 @@ struct WebView: UIViewRepresentable, WebViewHandlerDelegate {
                         if webView.canGoForward {
                             webView.goForward()
                         }
+                    case .reload:
+                        webView.reload()
                 }
             })
         }
