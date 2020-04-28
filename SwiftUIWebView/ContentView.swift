@@ -100,6 +100,8 @@ struct ContentView: View {
                 ).padding(.leading, 20).padding(.trailing, 20)
                 
                 webViewNavigationBar
+            }.onReceive(self.viewModel.showLoader.receive(on: RunLoop.main)) { value in
+                self.showLoader = value
             }
             
             // A simple loader that is shown when WebView is loading any page and hides when loading is finished.
