@@ -103,8 +103,6 @@ struct WebView: UIViewRepresentable, WebViewHandlerDelegate {
             /* An observer that observes 'viewModel.valuePublisher' to get value from TextField and
              pass that value to web app by calling JavaScript function */
             valueSubscriber = parent.viewModel.valuePublisher.receive(on: RunLoop.main).sink(receiveValue: { value in
-                print(value)
-//                let javascriptFunction = "valueGotFromIOS(\(value));"
                 let javascriptFunction = "valueGotFromIOS('"+value+"')"
                 webView.evaluateJavaScript(javascriptFunction) { (response, error) in
                     if let error = error {
