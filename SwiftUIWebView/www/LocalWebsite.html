@@ -41,8 +41,9 @@
             window.webkit.messageHandlers.iOSNative.postMessage("Bla Bla Bla");
         }
     
-        function valueGotFromIOS(value) {
+        function valueGotFromIOS(value = "Default response if nothing received") {
             document.getElementById("output").innerHTML = value;
+            window.webkit.messageHandlers.iOSNative.postMessage(value);
         }
     
         

@@ -13,6 +13,7 @@ struct ContentView: View {
     @State var showLoader = false
     @State var message = ""
     @State var webTitle = ""
+    @State var isLocal: Bool = true
     
     // For WebView's forward and backward navigation
     var webViewNavigationBar: some View {
@@ -71,6 +72,8 @@ struct ContentView: View {
                  at runtime where dynamic web app can */
                 
                 HStack {
+                    Toggle(isOn: $isLocal) {}
+                          .labelsHidden()
                     TextField("Write message", text: $message).textFieldStyle(RoundedBorderTextFieldStyle())
                     Button(action: {
                         self.viewModel.valuePublisher.send(self.message)
@@ -94,7 +97,7 @@ struct ContentView: View {
                 /* This is our WebView. Here if you pass .localUrl it will load LocalWebsite.html file
                  into the WebView and if you pass .publicUrl it will load the public website depending on
                  your url provided. See WebView implementation for more info. */
-                WebView(url: .publicUrl, viewModel: viewModel).overlay (
+                WebView(url: isLocal ? .localUrl : .publicUrl, viewModel: viewModel).overlay (
                     RoundedRectangle(cornerRadius: 4, style: .circular)
                         .stroke(Color.gray, lineWidth: 0.5)
                 ).padding(.leading, 20).padding(.trailing, 20)
